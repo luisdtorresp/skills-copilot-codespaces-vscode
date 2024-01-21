@@ -1,23 +1,31 @@
-// Create a web server that can respond to requests for /comments.json
-// with a JSON representation of the array of comments.
-// Use our new json() function, which sends a JSON response.
-// Use the commentsPage() function to generate the array of comments.
+// Create web server for static files
+const express = require('express');
+const app = express();
+const path = require('path');
+const router = express.Router();
+const port = process.env.PORT || 8080;
+const fs = require('fs');
 
-var http = require("http");
+// Set static folder
+app.use(express.static(path.join(__dirname, 'public')));
 
-var commentsPage = require("./comments_page");
-
-var server = http.createServer(function(request, response) {
-  if (request.url === "/comments.json") {
-    response.writeHead(200, {"Content-Type": "application/json"});
-    response.write(JSON.stringify(commentsPage.comments));
-    response.end();
-  } else {
-    response.writeHead(404, {"Content-Type": "text/plain"});
-    response.write("404 Not Found\n");
-    response.end();
-  }
+// Get all comments
+router.get('/comments', (req, res) => {
+    fs.readFile('./comments.json', (err, data) => {
+        if (err) {
+            console.log(err);
+        } else {
+            res.send(JSON.parse(data));
+        }
+    });
 });
 
-server.listen(8000);
-console.log("Server running at http://localhost:8000/");
+// Post a comment
+router.post('/comments', (req, res) => {
+    fs.readFile('./comments.json', (err, data) => {
+        if (err) {
+            console.log(err);
+        } else {
+            let comments = JSON.parse(data);
+            let newComment = {
+                id: comments.length + 1,
